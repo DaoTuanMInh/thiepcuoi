@@ -52,33 +52,34 @@ export default function Slide6ThankYou({
   title = 'Thank you',
 }: Slide6ThankYouProps) {
   return (
-    <section className="relative w-full aspect-[538/389] min-h-[340px] sm:min-h-[390px] flex flex-col justify-end overflow-hidden select-none">
-      {/* 1. Background Couple Photo - Ảnh mới tươi sáng, độ nét cao */}
+    <section className="relative w-full aspect-[3/4] min-h-[500px] sm:min-h-[560px] flex flex-col justify-end overflow-hidden select-none">
+      {/* 1. Background Couple Photo - Ảnh studio cô dâu chú rể sắc nét cao */}
       <div className="absolute inset-0 z-0">
         <Image
           src={photoUrl}
           alt="Cảm ơn Quý Khách - Xuân Tùng & Thuý Hiền"
           fill
           priority
+          unoptimized
           sizes="(max-width: 480px) 100vw, 450px"
-          className="object-cover w-full h-full"
+          className="object-cover object-top w-full h-full"
         />
 
-        {/* 2. Giảm độ đậm màn phủ tối: chuyển sang lớp phủ nhẹ nhàng để ảnh sáng rõ nét */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/20 to-transparent pointer-events-none" />
+        {/* 2. Màn phủ gradient: Trong suốt ở phần mặt cô dâu chú rể phía trên, đậm dần ở phần thân váy phía dưới để nổi bật chữ cảm ơn */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 via-45% to-transparent pointer-events-none" />
       </div>
 
       {/* 3. Text Overlay */}
-      <div className="relative z-10 w-full px-4 sm:px-6 pb-5 sm:pb-6 flex flex-col items-center text-center text-white">
+      <div className="relative z-10 w-full px-4 sm:px-6 pb-6 sm:pb-8 flex flex-col items-center text-center text-white">
         {/* 'Thank you' calligraphy */}
         <h2
-          className={`${greatVibes.className} text-[48px] sm:text-[58px] leading-tight text-white font-normal italic drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] mb-1 sm:mb-2`}
+          className={`${greatVibes.className} text-[50px] sm:text-[60px] leading-tight text-white font-normal italic drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] mb-1 sm:mb-2`}
         >
           {title}
         </h2>
 
         {/* 4 lines of gratitude: Giữ nguyên font Cormorant Garamond tuyệt đẹp, chỉ tinh chỉnh chữ Q gọn gàng */}
-        <div className="max-w-[400px] mx-auto space-y-0.5">
+        <div className="max-w-[400px] mx-auto space-y-1">
           <p
             className={`${cormorantGaramond.className} text-[14px] sm:text-[15.5px] font-semibold text-white leading-[1.55] drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]`}
           >

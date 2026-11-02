@@ -37,3 +37,6 @@ next-env.d.ts
 
 # Temporary test images in root
 /*.png
+
+# Raw camera master photos (used versions are compressed to 1600x2400)
+public/images/JANG*.jpg

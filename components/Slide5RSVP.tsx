@@ -4,15 +4,11 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Playfair_Display, EB_Garamond } from 'next/font/google';
 import {
-  MessageSquareHeart,
   X,
   Copy,
   Check,
   Heart,
-  QrCode,
-  Send,
   Sparkles,
-  Download,
   RotateCw,
 } from 'lucide-react';
 
@@ -31,14 +27,19 @@ export interface WishItem {
   name: string;
   message: string;
   attendance?: string;
+  side?: string;
   createdAt?: string | Date;
 }
 
 interface Slide5RSVPProps {
   guestName?: string;
+  side?: 'nha-trai' | 'nha-gai';
 }
 
-export default function Slide5RSVP({ guestName = '' }: Slide5RSVPProps) {
+export default function Slide5RSVP({
+  guestName = '',
+  side = 'nha-gai',
+}: Slide5RSVPProps) {
   // Form states
   const [name, setName] = useState(guestName);
   const [message, setMessage] = useState('');
@@ -49,7 +50,9 @@ export default function Slide5RSVP({ guestName = '' }: Slide5RSVPProps) {
   // Modal states
   const [isWishesOpen, setIsWishesOpen] = useState(false);
   const [isQrOpen, setIsQrOpen] = useState(false);
-  const [qrTab, setQrTab] = useState<'groom' | 'bride'>('groom');
+  const [qrTab, setQrTab] = useState<'groom' | 'bride'>(
+    side === 'nha-gai' ? 'bride' : 'groom'
+  );
   const [copiedGroom, setCopiedGroom] = useState(false);
   const [copiedBride, setCopiedBride] = useState(false);
 
@@ -64,14 +67,25 @@ export default function Slide5RSVP({ guestName = '' }: Slide5RSVPProps) {
     }
   }, [guestName, name]);
 
-  // Fetch wishes from DB (cache: 'no-store')
+  // Sync default QR tab with side
+  useEffect(() => {
+    if (side === 'nha-gai') {
+      setQrTab('bride');
+    } else if (side === 'nha-trai') {
+      setQrTab('groom');
+    }
+  }, [side]);
+
+  // Fetch wishes from DB phân biệt theo thiệp Nhà Trai hoặc Nhà Gái (cache: 'no-store')
   const fetchWishes = async () => {
     setIsLoadingWishes(true);
     try {
-      const res = await fetch('/api/wishes', {
+      const targetSide = side === 'nha-trai' ? 'nha-trai' : 'nha-gai';
+      const url = `/api/wishes?side=${encodeURIComponent(targetSide)}`;
+      const res = await fetch(url, {
         cache: 'no-store',
         headers: {
-          'Pragma': 'no-cache',
+          Pragma: 'no-cache',
           'Cache-Control': 'no-cache',
         },
       });
@@ -88,9 +102,9 @@ export default function Slide5RSVP({ guestName = '' }: Slide5RSVPProps) {
 
   useEffect(() => {
     fetchWishes();
-  }, []);
+  }, [side]);
 
-  // Handle RSVP & Wish Submit
+  // Handle RSVP & Wish Submit (Lưu kèm thông tin side để chia lời chúc riêng cho từng thiệp)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
@@ -107,15 +121,16 @@ export default function Slide5RSVP({ guestName = '' }: Slide5RSVPProps) {
           name: name.trim(),
           message: message.trim(),
           attendance,
+          side: side || 'both',
         }),
       });
       const data = await res.json();
       if (data.success) {
         setSubmitSuccess(true);
         setMessage('');
-        // Re-fetch all wishes from DB so the newest list is loaded
+        // Re-fetch wishes from DB
         await fetchWishes();
-        // Automatically open the wishes guestbook popup after 1s so the user can immediately see their wish recorded on the site!
+        // Tự động mở popup sổ lưu bút sau 1.2s
         setTimeout(() => {
           setIsWishesOpen(true);
           setSubmitSuccess(false);
@@ -147,6 +162,7 @@ export default function Slide5RSVP({ guestName = '' }: Slide5RSVPProps) {
   const formatTime = (dateInput?: string | Date) => {
     if (!dateInput) return 'Vừa xong';
     const date = new Date(dateInput);
+    if (isNaN(date.getTime())) return 'Vừa xong';
     const diff = Math.floor((Date.now() - date.getTime()) / 1000);
     if (diff < 60) return 'Vừa xong';
     if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
@@ -157,12 +173,15 @@ export default function Slide5RSVP({ guestName = '' }: Slide5RSVPProps) {
   return (
     <section className="relative w-full bg-[#FFFAF4] pt-8 pb-16 select-none overflow-x-hidden">
       <div className="relative w-full max-w-[430px] sm:max-w-[450px] mx-auto px-5 sm:px-6 flex flex-col items-center">
-        {/* 1. Header paragraph text from image */}
+        {/* 1. Header paragraph text */}
         <p
           className={`${playfair.className} text-[15px] sm:text-[16.5px] text-[#AC4558] text-center font-semibold leading-relaxed max-w-[380px] mb-6 sm:mb-7`}
         >
-          Hãy xác nhận sự có mặt của Quý Khách để gia đình chúng tôi chuẩn bị đón
-          tiếp một cách chu đáo nhất.
+          {side === 'nha-trai'
+            ? 'Hãy xác nhận sự có mặt của Quý Khách để gia đình Nhà Trai chuẩn bị đón tiếp chu đáo nhất.'
+            : side === 'nha-gai'
+            ? 'Hãy xác nhận sự có mặt của Quý Khách để gia đình Nhà Gái chuẩn bị đón tiếp chu đáo nhất.'
+            : 'Hãy xác nhận sự có mặt của Quý Khách để gia đình chúng tôi chuẩn bị đón tiếp một cách chu đáo nhất.'}
           <br />
           <span className="font-bold italic">Trân trọng!</span>
         </p>
@@ -187,7 +206,13 @@ export default function Slide5RSVP({ guestName = '' }: Slide5RSVPProps) {
               rows={3}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Nhập lời chúc của Quý Khách"
+              placeholder={
+                side === 'nha-trai'
+                  ? 'Gửi lời chúc mừng tới Chú rể & Gia đình Nhà Trai...'
+                  : side === 'nha-gai'
+                  ? 'Gửi lời chúc mừng tới Cô dâu & Gia đình Nhà Gái...'
+                  : 'Nhập lời chúc của Quý Khách'
+              }
               className={`${playfair.className} w-full px-5 py-3.5 rounded-[22px] bg-white/70 border border-[#AC4558]/55 text-[#8F3047] placeholder-[#AC4558]/65 text-[15px] sm:text-[16px] font-medium leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-[#AC4558]/30 transition-all shadow-[0_2px_8px_rgba(172,69,88,0.06)]`}
             />
           </div>
@@ -243,56 +268,46 @@ export default function Slide5RSVP({ guestName = '' }: Slide5RSVPProps) {
               )}
             </button>
 
-            {/* Button 2: Nút tròn icon tin nhắn trái tim */}
+            {/* Button 2: Nút tròn mở sổ lưu bút */}
             <button
               type="button"
               onClick={() => {
                 fetchWishes();
                 setIsWishesOpen(true);
               }}
-              title="Xem những lời chúc của mọi người"
-              className="relative w-[48px] h-[48px] sm:w-[50px] sm:h-[50px] shrink-0 rounded-full bg-[#AC4558] hover:bg-[#8F3047] text-white flex items-center justify-center shadow-[0_4px_14px_rgba(172,69,88,0.25)] hover:shadow-[0_6px_18px_rgba(172,69,88,0.35)] active:scale-95 transition-all group"
+              title="Xem sổ lưu bút & lời chúc phúc"
+              className="relative w-[50px] h-[50px] sm:w-[52px] sm:h-[52px] rounded-full bg-[#AC4558] hover:bg-[#8F3047] text-white flex items-center justify-center shadow-[0_4px_14px_rgba(172,69,88,0.25)] hover:shadow-[0_6px_18px_rgba(172,69,88,0.35)] active:scale-95 transition-all flex-shrink-0 cursor-pointer"
+              aria-label="Xem sổ lưu bút"
             >
-              <MessageSquareHeart
-                size={22}
-                className="transform group-hover:scale-110 transition-transform"
-              />
+              <Heart size={22} className="stroke-[1.8] fill-white/20" />
               {wishes.length > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] px-1 rounded-full bg-white text-[#AC4558] text-[10.5px] font-bold border-2 border-[#AC4558] flex items-center justify-center shadow-sm">
-                  {wishes.length}
+                <span className="absolute -top-1 -right-1 min-w-[20px] h-[20px] px-1 rounded-full bg-amber-400 text-stone-900 text-[11px] font-bold flex items-center justify-center border-2 border-[#FFFAF4] shadow-sm">
+                  {wishes.length > 99 ? '99+' : wishes.length}
                 </span>
               )}
             </button>
           </div>
+        </form>
 
-          {/* Row 5: [ GỬI QUÀ MỪNG CƯỚI ] */}
+        {/* 3. Nút HỘP MỪNG CƯỚI */}
+        <div className="w-full mt-5">
           <button
             type="button"
             onClick={() => setIsQrOpen(true)}
-            className={`${ebGaramond.className} w-full py-3.5 sm:py-3.5 px-4 rounded-full bg-[#AC4558] hover:bg-[#8F3047] text-white text-[15.5px] sm:text-[16.5px] font-medium tracking-[0.05em] uppercase shadow-[0_4px_14px_rgba(172,69,88,0.25)] hover:shadow-[0_6px_18px_rgba(172,69,88,0.35)] active:scale-[0.98] transition-all flex items-center justify-center gap-2`}
+            className={`${ebGaramond.className} w-full py-3.5 px-4 rounded-full border-2 border-[#AC4558] bg-white/90 hover:bg-[#AC4558] text-[#AC4558] hover:text-white text-[16px] sm:text-[17px] font-semibold tracking-[0.06em] uppercase shadow-[0_3px_12px_rgba(172,69,88,0.12)] active:scale-[0.98] transition-all flex items-center justify-center gap-2`}
           >
-            <span>GỬI QUÀ MỪNG CƯỚI</span>
-          </button>
-
-          {/* Row 6: Nút xem toàn bộ lời chúc */}
-          <button
-            type="button"
-            onClick={() => {
-              fetchWishes();
-              setIsWishesOpen(true);
-            }}
-            className={`${ebGaramond.className} mt-1 text-[15px] sm:text-[16px] text-[#AC4558] hover:text-[#8F3047] font-medium flex items-center justify-center gap-1.5 transition-colors underline underline-offset-4`}
-          >
-            <MessageSquareHeart size={16} />
+            <Sparkles size={18} />
             <span>
-              Xem sổ lưu bút {wishes.length > 0 ? `(${wishes.length} lời chúc)` : ''}
+              {side === 'nha-trai'
+                ? 'HỘP MỪNG CƯỚI NHÀ TRAI'
+                : 'HỘP MỪNG CƯỚI NHÀ GÁI'}
             </span>
           </button>
-        </form>
+        </div>
       </div>
 
       {/* ========================================================= */}
-      {/* MODAL 1: POPUP NHỮNG LỜI CHÚC CỦA MỌI NGƯỜI (SỔ LƯU BÚT) */}
+      {/* MODAL 1: SỔ LƯU BÚT & LỜI CHÚC PHÚC (PHÂN BIỆT THEO THIỆP) */}
       {/* ========================================================= */}
       {isWishesOpen && (
         <div
@@ -329,12 +344,20 @@ export default function Slide5RSVP({ guestName = '' }: Slide5RSVPProps) {
               <h3
                 className={`${ebGaramond.className} text-[20px] sm:text-[22px] font-semibold text-[#AC4558] uppercase tracking-wide`}
               >
-                SỔ LƯU BÚT & LỜI CHÚC
+                {side === 'nha-trai'
+                  ? 'SỔ LƯU BÚT - NHÀ TRAI'
+                  : side === 'nha-gai'
+                  ? 'SỔ LƯU BÚT - NHÀ GÁI'
+                  : 'SỔ LƯU BÚT & LỜI CHÚC'}
               </h3>
               <p
                 className={`${playfair.className} text-[13px] sm:text-[14px] text-[#8F3047] italic font-medium mt-0.5`}
               >
-                Những tình cảm và lời chúc phúc chân thành dành tặng đôi uyên ương
+                {side === 'nha-trai'
+                  ? 'Những tình cảm và lời chúc phúc chân thành dành tặng Chú rể & Nhà Trai'
+                  : side === 'nha-gai'
+                  ? 'Những tình cảm và lời chúc phúc chân thành dành tặng Cô dâu & Nhà Gái'
+                  : 'Những tình cảm và lời chúc phúc chân thành dành tặng đôi uyên ương'}
               </p>
               {wishes.length > 0 && (
                 <span className="mt-1.5 px-3 py-0.5 rounded-full bg-[#AC4558]/10 text-[#AC4558] text-[11.5px] font-bold tracking-wide">
@@ -358,7 +381,11 @@ export default function Slide5RSVP({ guestName = '' }: Slide5RSVPProps) {
                     Chưa có lời chúc nào
                   </p>
                   <p className="text-[13px] text-[#AC4558]/70 max-w-[260px] leading-relaxed">
-                    Hãy là người đầu tiên gửi gắm lời chúc phúc yêu thương tới Xuân Tùng & Thuý Hiền nhé!
+                    {side === 'nha-trai'
+                      ? 'Hãy là người đầu tiên gửi gắm lời chúc phúc yêu thương tới Chú rể Xuân Tùng nhé!'
+                      : side === 'nha-gai'
+                      ? 'Hãy là người đầu tiên gửi gắm lời chúc phúc yêu thương tới Cô dâu Thuý Hiền nhé!'
+                      : 'Hãy là người đầu tiên gửi gắm lời chúc phúc yêu thương tới Xuân Tùng & Thuý Hiền nhé!'}
                   </p>
                 </div>
               ) : (
@@ -387,17 +414,26 @@ export default function Slide5RSVP({ guestName = '' }: Slide5RSVPProps) {
                       </p>
                     ) : (
                       <p className="text-[13px] text-stone-400 pl-3.5 italic">
-                        Đã xác nhận gửi lời chúc mừng đến cô dâu & chú rể!
+                        Đã xác nhận gửi lời chúc mừng đến ngày trọng đại!
                       </p>
                     )}
 
-                    {item.attendance && (
-                      <div className="self-end mt-1">
-                        <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#AC4558]/10 text-[#AC4558] font-medium tracking-wide">
+                    <div className="flex items-center justify-between mt-1 pt-1 border-t border-stone-100">
+                      {item.side && item.side !== 'both' ? (
+                        <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#AC4558]/10 text-[#AC4558]">
+                          {item.side === 'nha-trai' || item.side === 'trai' || item.side === 'groom'
+                            ? 'Khách Nhà Trai'
+                            : 'Khách Nhà Gái'}
+                        </span>
+                      ) : (
+                        <span />
+                      )}
+                      {item.attendance && (
+                        <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 font-medium tracking-wide">
                           {item.attendance}
                         </span>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 ))
               )}
@@ -417,7 +453,7 @@ export default function Slide5RSVP({ guestName = '' }: Slide5RSVPProps) {
       )}
 
       {/* ========================================================= */}
-      {/* MODAL 2: GỬI QUÀ MỪNG CƯỚI - MÃ QR & SỐ TÀI KHOẢN SANG TRỌNG */}
+      {/* MODAL 2: GỬI QUÀ MỪNG CƯỚI - MÃ QR THẬT & STK CHÍNH XÁC */}
       {/* ========================================================= */}
       {isQrOpen && (
         <div
@@ -447,84 +483,63 @@ export default function Slide5RSVP({ guestName = '' }: Slide5RSVPProps) {
               <h3
                 className={`${ebGaramond.className} text-[21px] sm:text-[23px] font-semibold text-[#AC4558] uppercase tracking-wider`}
               >
-                HỘP MỪNG CƯỚI
+                {side === 'nha-trai'
+                  ? 'HỘP MỪNG CƯỚI - NHÀ TRAI'
+                  : 'HỘP MỪNG CƯỚI - NHÀ GÁI'}
               </h3>
               <p
                 className={`${playfair.className} text-[13px] sm:text-[14px] text-[#8F3047] italic font-medium max-w-[320px] mt-0.5 leading-snug`}
               >
-                Gửi gắm lời chúc phúc và món quà ý nghĩa đến Đôi Uyên Ương
+                {side === 'nha-trai'
+                  ? 'Gửi gắm lời chúc phúc và món quà ý nghĩa đến Chú rể & Nhà Trai'
+                  : 'Gửi gắm lời chúc phúc và món quà ý nghĩa đến Cô dâu & Nhà Gái'}
               </p>
-
-              {/* 2 Tabs: CHÚ RỂ & CÔ DÂU */}
-              <div className="w-full max-w-[280px] mt-4 p-1 rounded-full bg-stone-200/70 border border-[#AC4558]/20 flex items-center">
-                <button
-                  type="button"
-                  onClick={() => setQrTab('groom')}
-                  className={`${ebGaramond.className} flex-1 py-1.5 rounded-full text-xs sm:text-sm font-semibold uppercase tracking-wider transition-all duration-200 ${
-                    qrTab === 'groom'
-                      ? 'bg-[#AC4558] text-white shadow-sm'
-                      : 'text-[#8F3047] hover:text-[#AC4558]'
-                  }`}
-                >
-                  CHÚ RỂ
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setQrTab('bride')}
-                  className={`${ebGaramond.className} flex-1 py-1.5 rounded-full text-xs sm:text-sm font-semibold uppercase tracking-wider transition-all duration-200 ${
-                    qrTab === 'bride'
-                      ? 'bg-[#AC4558] text-white shadow-sm'
-                      : 'text-[#8F3047] hover:text-[#AC4558]'
-                  }`}
-                >
-                  CÔ DÂU
-                </button>
-              </div>
             </div>
 
-            {/* Modal Body: QR Card Details */}
+            {/* Modal Body: Hiển thị đúng QR duy nhất theo đường dẫn nhà trai hoặc nhà gái */}
             <div className="flex-1 overflow-y-auto px-5 pb-6 pt-1 flex flex-col items-center text-center">
-              {qrTab === 'groom' ? (
-                /* ================= TAB CHÚ RỂ ================= */
+              {side === 'nha-trai' ? (
+                /* ================= THIỆP CHÚ RỂ (NHÀ TRAI) ================= */
                 <div className="w-full flex flex-col items-center animate-in fade-in duration-300">
                   {/* Luxury QR Frame */}
-                  <div className="relative p-3 rounded-2xl bg-white border-2 border-[#AC4558]/35 shadow-[0_6px_20px_rgba(172,69,88,0.15)] my-2">
+                  <div className="relative p-2.5 rounded-2xl bg-white border-2 border-[#AC4558]/35 shadow-[0_6px_20px_rgba(172,69,88,0.15)] my-2">
                     {/* 4 Corner Ornaments */}
                     <div className="absolute top-1 left-1 w-3 h-3 border-t-2 border-l-2 border-[#AC4558]" />
                     <div className="absolute top-1 right-1 w-3 h-3 border-t-2 border-r-2 border-[#AC4558]" />
                     <div className="absolute bottom-1 left-1 w-3 h-3 border-b-2 border-l-2 border-[#AC4558]" />
                     <div className="absolute bottom-1 right-1 w-3 h-3 border-b-2 border-r-2 border-[#AC4558]" />
 
-                    {/* QR Image */}
-                    <div className="relative w-[190px] h-[225px] sm:w-[210px] sm:h-[250px] overflow-hidden rounded-lg bg-white flex items-center justify-center">
+                    {/* QR Image Chú rể */}
+                    <div className="relative w-[215px] h-[280px] sm:w-[235px] sm:h-[305px] overflow-hidden rounded-lg bg-white flex items-center justify-center">
                       <Image
-                        src="/images/qr-chu-re.svg"
+                        src="/images/qr-chu-re-real.jpg"
                         alt="Mã QR mừng cưới Chú rể Phạm Xuân Tùng"
                         fill
-                        sizes="210px"
+                        unoptimized
+                        sizes="235px"
                         className="object-contain"
                         priority
                       />
                     </div>
                   </div>
 
-                  {/* Bank Info Details */}
+                  {/* Bank Info Details Chú rể */}
                   <div className="w-full mt-3 px-3 py-3 rounded-xl bg-white/80 border border-[#AC4558]/20 flex flex-col items-center gap-1">
-                    <span className="text-[11.5px] uppercase tracking-wider text-stone-500 font-medium">
+                    <span className="text-[12px] uppercase tracking-wider text-stone-500 font-semibold">
                       Ngân hàng Quân Đội (MB Bank)
                     </span>
                     <span
-                      className={`${playfair.className} text-[17px] sm:text-[18px] font-bold text-[#AC4558] tracking-wider`}
+                      className={`${playfair.className} text-[17.5px] sm:text-[18.5px] font-bold text-[#AC4558] tracking-wider`}
                     >
                       PHẠM XUÂN TÙNG
                     </span>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-[16px] sm:text-[17px] font-mono font-bold text-stone-800 tracking-wider">
-                        0988 668 899
+                        93112009999899
                       </span>
                       <button
                         type="button"
-                        onClick={() => copyToClipboard('0988668899', 'groom')}
+                        onClick={() => copyToClipboard('93112009999899', 'groom')}
                         className="px-2.5 py-1 rounded-md bg-[#AC4558]/10 hover:bg-[#AC4558]/20 text-[#AC4558] text-xs font-medium inline-flex items-center gap-1 active:scale-95 transition"
                       >
                         {copiedGroom ? (
@@ -545,46 +560,47 @@ export default function Slide5RSVP({ guestName = '' }: Slide5RSVPProps) {
                   </div>
                 </div>
               ) : (
-                /* ================= TAB CÔ DÂU ================= */
+                /* ================= TAB / THIỆP CÔ DÂU (NHÀ GÁI) ================= */
                 <div className="w-full flex flex-col items-center animate-in fade-in duration-300">
                   {/* Luxury QR Frame */}
-                  <div className="relative p-3 rounded-2xl bg-white border-2 border-[#AC4558]/35 shadow-[0_6px_20px_rgba(172,69,88,0.15)] my-2">
+                  <div className="relative p-2.5 rounded-2xl bg-white border-2 border-[#AC4558]/35 shadow-[0_6px_20px_rgba(172,69,88,0.15)] my-2">
                     {/* 4 Corner Ornaments */}
                     <div className="absolute top-1 left-1 w-3 h-3 border-t-2 border-l-2 border-[#AC4558]" />
                     <div className="absolute top-1 right-1 w-3 h-3 border-t-2 border-r-2 border-[#AC4558]" />
                     <div className="absolute bottom-1 left-1 w-3 h-3 border-b-2 border-l-2 border-[#AC4558]" />
                     <div className="absolute bottom-1 right-1 w-3 h-3 border-b-2 border-r-2 border-[#AC4558]" />
 
-                    {/* QR Image */}
-                    <div className="relative w-[190px] h-[225px] sm:w-[210px] sm:h-[250px] overflow-hidden rounded-lg bg-white flex items-center justify-center">
+                    {/* QR Image Cô dâu */}
+                    <div className="relative w-[215px] h-[280px] sm:w-[235px] sm:h-[305px] overflow-hidden rounded-lg bg-white flex items-center justify-center">
                       <Image
-                        src="/images/qr-co-dau.svg"
+                        src="/images/qr-co-dau-real.jpg"
                         alt="Mã QR mừng cưới Cô dâu Nguyễn Thuý Hiền"
                         fill
-                        sizes="210px"
+                        unoptimized
+                        sizes="235px"
                         className="object-contain"
                         priority
                       />
                     </div>
                   </div>
 
-                  {/* Bank Info Details */}
+                  {/* Bank Info Details Cô dâu */}
                   <div className="w-full mt-3 px-3 py-3 rounded-xl bg-white/80 border border-[#AC4558]/20 flex flex-col items-center gap-1">
-                    <span className="text-[11.5px] uppercase tracking-wider text-stone-500 font-medium">
-                      Ngân hàng Ngoại Thương (Vietcombank)
+                    <span className="text-[12px] uppercase tracking-wider text-stone-500 font-semibold">
+                      Ngân hàng Quân Đội (MB Bank)
                     </span>
                     <span
-                      className={`${playfair.className} text-[17px] sm:text-[18px] font-bold text-[#AC4558] tracking-wider`}
+                      className={`${playfair.className} text-[17.5px] sm:text-[18.5px] font-bold text-[#AC4558] tracking-wider`}
                     >
                       NGUYỄN THUÝ HIỀN
                     </span>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-[16px] sm:text-[17px] font-mono font-bold text-stone-800 tracking-wider">
-                        0988 886 699
+                        1900106012002
                       </span>
                       <button
                         type="button"
-                        onClick={() => copyToClipboard('0988886699', 'bride')}
+                        onClick={() => copyToClipboard('1900106012002', 'bride')}
                         className="px-2.5 py-1 rounded-md bg-[#AC4558]/10 hover:bg-[#AC4558]/20 text-[#AC4558] text-xs font-medium inline-flex items-center gap-1 active:scale-95 transition"
                       >
                         {copiedBride ? (
@@ -620,4 +636,3 @@ export default function Slide5RSVP({ guestName = '' }: Slide5RSVPProps) {
     </section>
   );
 }
-

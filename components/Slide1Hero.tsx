@@ -106,6 +106,7 @@ export default function Slide1Hero({ guestName }: Slide1HeroProps) {
             alt="Thiệp cưới Xuân Tùng & Thuý Hiền"
             fill
             priority
+            unoptimized
             sizes="(max-width: 480px) 100vw, 450px"
             className="object-contain w-full h-full"
           />

@@ -4,9 +4,12 @@ import clientPromise from '@/lib/mongodb';
 
 export const instant = false;
 
-export async function GET() {
+export async function GET(req: Request) {
   await connection();
   try {
+    const { searchParams } = new URL(req.url);
+    const side = searchParams.get('side')?.toLowerCase();
+
     const client = await clientPromise;
     if (!client) {
       return NextResponse.json(
@@ -16,9 +19,31 @@ export async function GET() {
     }
 
     const db = client.db('wedding_db');
+
+    // Phân loại lời chúc theo thiệp Nhà Trai hoặc Nhà Gái
+    let query: Record<string, any> = {};
+    if (side === 'nha-trai' || side === 'trai' || side === 'groom') {
+      query = {
+        $or: [
+          { side: 'nha-trai' },
+          { side: 'trai' },
+          { side: 'groom' },
+          { side: { $exists: false } }, // Tương thích các lời chúc trước đây
+        ],
+      };
+    } else if (side === 'nha-gai' || side === 'gai' || side === 'bride') {
+      query = {
+        $or: [
+          { side: 'nha-gai' },
+          { side: 'gai' },
+          { side: 'bride' },
+        ],
+      };
+    }
+
     const dbWishes = await db
       .collection('wishes')
-      .find({})
+      .find(query)
       .sort({ createdAt: -1 })
       .toArray();
 
@@ -28,6 +53,7 @@ export async function GET() {
       name: w.name,
       message: w.message || '',
       attendance: w.attendance || 'Xác nhận tham dự',
+      side: w.side || 'both',
       createdAt:
         w.createdAt instanceof Date
           ? w.createdAt.toISOString()
@@ -60,7 +86,7 @@ export async function POST(req: Request) {
   await connection();
   try {
     const body = await req.json();
-    const { name, message, attendance } = body;
+    const { name, message, attendance, side } = body;
 
     if (!name || !name.trim()) {
       return NextResponse.json(
@@ -73,6 +99,7 @@ export async function POST(req: Request) {
       name: name.trim(),
       message: (message || '').trim(),
       attendance: attendance || 'Xác nhận tham dự',
+      side: side || 'both',
       createdAt: new Date(),
     };
 

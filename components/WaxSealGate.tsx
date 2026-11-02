@@ -135,6 +135,7 @@ export default function WaxSealGate({
               src="/images/song_hy_seal.png"
               alt="Con dấu Song Hỷ"
               fill
+              unoptimized
               sizes="120px"
               className="object-contain p-1"
               priority

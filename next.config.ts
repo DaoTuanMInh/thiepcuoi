@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -34,6 +35,26 @@ const nextConfig: NextConfig = {
       {
         source: '/i/:path*',
         destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/nhatrai',
+        destination: '/nha-trai',
+        permanent: false,
+      },
+      {
+        source: '/trai',
+        destination: '/nha-trai',
+        permanent: false,
+      },
+      {
+        source: '/nhagai',
+        destination: '/nha-gai',
+        permanent: false,
+      },
+      {
+        source: '/gai',
+        destination: '/nha-gai',
         permanent: false,
       },
     ];

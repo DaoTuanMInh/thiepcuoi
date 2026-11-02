@@ -19,8 +19,8 @@ export interface AlbumPhoto {
 const DEFAULT_ALBUM_PHOTOS: AlbumPhoto[] = [
   {
     src: '/images/album_real_1.jpg',
-    alt: 'Ảnh cưới Xuân Tùng & Thuý Hiền - Lễ phục cưới trang trọng',
-    caption: 'Khoảnh khắc rạng rỡ và hạnh phúc ngày chung đôi',
+    alt: 'Ảnh cưới Xuân Tùng & Thuý Hiền - Đọc lời thề nguyện hạnh phúc',
+    caption: 'Trao nhau lời hẹn thề cùng đi qua năm tháng bình yên',
   },
   {
     src: '/images/album_real_2.jpg',
@@ -44,8 +44,8 @@ const DEFAULT_ALBUM_PHOTOS: AlbumPhoto[] = [
   },
   {
     src: '/images/album_real_6.jpg',
-    alt: 'Ảnh cưới Xuân Tùng & Thuý Hiền - Giữa thiên nhiên đất trời',
-    caption: 'Tay trong tay cùng nhau bước vào hành trình mới',
+    alt: 'Ảnh cưới Xuân Tùng & Thuý Hiền - Cử chỉ ngọt ngào và cuốn sổ nguyện ước',
+    caption: 'Tình yêu đong đầy trong từng ánh mắt và cử chỉ dịu dàng trao nhau',
   },
   {
     src: '/images/album_real_7.jpg',
@@ -181,12 +181,13 @@ export default function Slide4Album({
                 }}
                 className="group relative w-full aspect-[3/4] overflow-hidden bg-black/15 shadow-[0_4px_16px_rgba(0,0,0,0.18)] cursor-pointer hover:scale-[1.025] hover:shadow-[0_8px_24px_rgba(0,0,0,0.3)] active:scale-95"
               >
-                {/* Photo Image */}
+                {/* Photo Image - unoptimized giữ 100% độ sắc nét nguyên bản của file gốc */}
                 <Image
                   src={photo.src}
                   alt={photo.alt}
                   fill
-                  sizes="(max-width: 480px) 50vw, 220px"
+                  unoptimized
+                  sizes="(max-width: 480px) 50vw, 300px"
                   className="object-cover w-full h-full transition-transform duration-500 ease-out group-hover:scale-110"
                   loading="lazy"
                 />
@@ -242,13 +243,14 @@ export default function Slide4Album({
               <ChevronLeft size={28} />
             </button>
 
-            {/* Main Lightbox Image */}
+            {/* Main Lightbox Image - unoptimized giữ 100% độ sắc nét tuyệt đối khi phóng to toàn màn hình */}
             <div className="relative w-full h-[65vh] sm:h-[75vh] max-h-[750px]">
               <Image
                 src={photos[lightboxIndex].src}
                 alt={photos[lightboxIndex].alt}
                 fill
-                sizes="(max-width: 768px) 95vw, 800px"
+                unoptimized
+                sizes="(max-width: 768px) 100vw, 900px"
                 className="object-contain"
                 priority
               />
