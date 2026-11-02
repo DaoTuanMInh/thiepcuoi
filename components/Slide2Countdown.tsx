@@ -88,19 +88,10 @@ export default function Slide2Countdown({
         {/* Title: Ngày tình yêu đơm hoa... */}
         <div className="w-full px-4 flex flex-col items-center overflow-visible">
           <h2
-            className={`${pinyonScript.className} text-[29px] min-[390px]:text-[33px] sm:text-[40px] text-[#8F3047] leading-[1.25] py-1 mb-1 tracking-[0.01em] text-center max-w-full select-none`}
+            className={`${pinyonScript.className} text-[29px] min-[390px]:text-[33px] sm:text-[40px] text-[#8F3047] leading-[1.25] py-1 mb-4 sm:mb-5 tracking-[0.01em] text-center max-w-full select-none`}
           >
             Ngày tình yêu đơm hoa...
           </h2>
-
-          {/* Badge thông tin thời gian chuẩn theo bên Nhà Trai / Nhà Gái */}
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#A83F55]/12 border border-[#A83F55]/25 text-[#8F3047] text-[11.5px] sm:text-[12.5px] font-bold tracking-wider uppercase mb-4 shadow-xs">
-            <span>
-              {side === 'nha-trai'
-                ? '16:30 • CHỦ NHẬT, 29.11.2026'
-                : '09:00 • CHỦ NHẬT, 29.11.2026'}
-            </span>
-          </div>
 
           {/* 4 Countdown Boxes */}
           <div className="flex items-center justify-center gap-2.5 sm:gap-3.5 mb-7 sm:mb-8">
