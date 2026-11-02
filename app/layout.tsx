@@ -12,9 +12,38 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+  ? process.env.NEXT_PUBLIC_SITE_URL
+  : process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : 'https://thiepcuoi.vercel.app';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Thiệp Cưới Xuân Tùng & Thuý Hiền",
   description: "Thiệp cưới trực tuyến - Phạm Xuân Tùng & Nguyễn Thuý Hiền",
+  openGraph: {
+    title: "Thiệp Cưới Xuân Tùng & Thuý Hiền",
+    description: "Thiệp cưới trực tuyến - Phạm Xuân Tùng & Nguyễn Thuý Hiền",
+    type: "website",
+    locale: "vi_VN",
+    images: [
+      {
+        url: "/images/og-wedding-cover.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Thiệp Cưới Xuân Tùng & Thuý Hiền",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Thiệp Cưới Xuân Tùng & Thuý Hiền",
+    description: "Thiệp cưới trực tuyến - Phạm Xuân Tùng & Nguyễn Thuý Hiền",
+    images: ["/images/og-wedding-cover.jpg"],
+  },
 };
 
 export default function RootLayout({

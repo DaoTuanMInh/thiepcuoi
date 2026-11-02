@@ -8,8 +8,24 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Thiệp Cưới Nhà Trai - Phạm Xuân Tùng & Nguyễn Thuý Hiền',
     description:
-      'Trân trọng kính mời Quý khách đến dự Lễ Thành Hôn của Xuân Tùng & Thuý Hiền tại Huy Hoàng Palace',
-    images: ['/images/slide1-hero.jpg'],
+      'Trân trọng kính mời Quý khách đến dự Lễ Thành Hôn của Xuân Tùng & Thuý Hiền tại Huy Hoàng Palace lúc 16:30, Chủ Nhật 29.11.2026',
+    type: 'website',
+    locale: 'vi_VN',
+    images: [
+      {
+        url: '/images/og-wedding-cover.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Thiệp Cưới Xuân Tùng & Thuý Hiền - Nhà Trai',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Thiệp Cưới Nhà Trai - Phạm Xuân Tùng & Nguyễn Thuý Hiền',
+    description:
+      'Trân trọng kính mời Quý khách đến dự Lễ Thành Hôn của Xuân Tùng & Thuý Hiền tại Huy Hoàng Palace lúc 16:30, Chủ Nhật 29.11.2026',
+    images: ['/images/og-wedding-cover.jpg'],
   },
 };
 
