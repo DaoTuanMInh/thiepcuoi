@@ -23,35 +23,46 @@ export default function Slide1Hero({ guestName }: Slide1HeroProps) {
   const [mounted, setMounted] = useState(false);
   const [namesVisible, setNamesVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  const gateOpenedRef = useRef(false);
 
   useEffect(() => {
     setMounted(true);
 
-    // Trigger animation when the Song Hỷ wax seal gate opens
+    // If gate was already opened in this session
+    if (typeof window !== 'undefined' && (window as any).__weddingGateOpened) {
+      gateOpenedRef.current = true;
+      setNamesVisible(true);
+      return;
+    }
+
+    // STRICT: Only animate WHEN the user taps to open the gate
     const handleGateOpening = () => {
+      gateOpenedRef.current = true;
+      // Wait 380ms as the curtains part to reveal the velvet heart, then start sliding up!
       setTimeout(() => {
         setNamesVisible(true);
-      }, 500);
+      }, 380);
+    };
+
+    const handleGateRemoved = () => {
+      gateOpenedRef.current = true;
+      setNamesVisible(true);
     };
 
     if (typeof window !== 'undefined') {
       window.addEventListener('wedding-gate-opening', handleGateOpening);
+      window.addEventListener('wedding-gate-removed', handleGateRemoved);
     }
-
-    // Fallback: If gate is already open or not present, animate after brief entrance
-    const fallbackTimer = setTimeout(() => {
-      setNamesVisible(true);
-    }, 900);
 
     return () => {
       if (typeof window !== 'undefined') {
         window.removeEventListener('wedding-gate-opening', handleGateOpening);
+        window.removeEventListener('wedding-gate-removed', handleGateRemoved);
       }
-      clearTimeout(fallbackTimer);
     };
   }, []);
 
-  // Also re-trigger smoothly when user scrolls back into Slide 1
+  // Re-trigger animation when the user scrolls back into Slide 1 (ONLY after gate has opened!)
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
@@ -59,12 +70,18 @@ export default function Slide1Hero({ guestName }: Slide1HeroProps) {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
+          // STRICT: Do NOT trigger while the gate is still closed before user touches it!
+          if (!gateOpenedRef.current) return;
+
           if (entry.isIntersecting) {
             setNamesVisible(true);
+          } else if (entry.boundingClientRect.top > 120) {
+            // Reset state when user scrolls down away from Slide 1 so scrolling back replays it
+            setNamesVisible(false);
           }
         });
       },
-      { threshold: 0.2 }
+      { threshold: 0.25 }
     );
 
     observer.observe(el);
@@ -85,7 +102,7 @@ export default function Slide1Hero({ guestName }: Slide1HeroProps) {
         {/* Main Artwork: Toned wedding envelope with ruffled velvet heart and flowers */}
         <div className="relative w-full aspect-[682/1024] bg-[#FFFAF4] overflow-hidden">
           <Image
-            src="/images/wedding-card-bg-clean.png"
+            src="/images/wedding-card-velvet-clean.png"
             alt="Thiệp cưới Xuân Tùng & Thuý Hiền"
             fill
             priority
@@ -93,22 +110,23 @@ export default function Slide1Hero({ guestName }: Slide1HeroProps) {
             className="object-contain w-full h-full"
           />
 
-          {/* Couple Names on Velvet Heart with elegant slide-up from bottom animation */}
-          <div className="absolute top-[70.2%] left-0 right-0 -translate-y-1/2 flex flex-col items-center justify-center text-center pointer-events-none z-10">
+          {/* Couple Names on Velvet Heart with prominent slide-up from bottom animation */}
+          <div className="absolute top-[70.2%] left-0 right-0 -translate-y-1/2 flex flex-col items-center justify-center text-center pointer-events-none z-10 px-4">
             {/* Line 1: Chú rể Xuân Tùng */}
             <div
               style={{
                 opacity: namesVisible ? 1 : 0,
-                transform: namesVisible ? 'translate3d(0, 0, 0)' : 'translate3d(0, 32px, 0)',
-                filter: namesVisible ? 'blur(0px)' : 'blur(4px)',
+                transform: namesVisible
+                  ? 'translate3d(0, 0, 0)'
+                  : 'translate3d(0, 50px, 0)',
+                filter: namesVisible ? 'blur(0px)' : 'blur(5px)',
                 transition:
-                  'opacity 1100ms cubic-bezier(0.16, 1, 0.3, 1), transform 1200ms cubic-bezier(0.16, 1, 0.3, 1), filter 1100ms ease-out',
-                transitionDelay: '120ms',
+                  'opacity 1100ms ease-out 60ms, transform 1250ms cubic-bezier(0.16, 1, 0.3, 1) 60ms, filter 1000ms ease-out 60ms',
                 textShadow:
-                  '0 2px 10px rgba(45, 8, 16, 0.75), 0 1px 3px rgba(0, 0, 0, 0.6)',
+                  '0 2px 10px rgba(45, 8, 16, 0.85), 0 1px 4px rgba(0, 0, 0, 0.7)',
                 willChange: 'transform, opacity, filter',
               }}
-              className={`${pinyonScript.className} text-white text-[28px] min-[390px]:text-[32px] sm:text-[34px] leading-[1.12] tracking-[0.01em] select-none`}
+              className={`${pinyonScript.className} text-white text-[30px] min-[390px]:text-[34px] sm:text-[37px] leading-[1.12] tracking-[0.01em] select-none`}
             >
               Xuân Tùng
             </div>
@@ -117,16 +135,17 @@ export default function Slide1Hero({ guestName }: Slide1HeroProps) {
             <div
               style={{
                 opacity: namesVisible ? 1 : 0,
-                transform: namesVisible ? 'translate3d(0, 0, 0)' : 'translate3d(0, 32px, 0)',
-                filter: namesVisible ? 'blur(0px)' : 'blur(4px)',
+                transform: namesVisible
+                  ? 'translate3d(0, 0, 0)'
+                  : 'translate3d(0, 50px, 0)',
+                filter: namesVisible ? 'blur(0px)' : 'blur(5px)',
                 transition:
-                  'opacity 1100ms cubic-bezier(0.16, 1, 0.3, 1), transform 1200ms cubic-bezier(0.16, 1, 0.3, 1), filter 1100ms ease-out',
-                transitionDelay: '280ms',
+                  'opacity 1100ms ease-out 240ms, transform 1250ms cubic-bezier(0.16, 1, 0.3, 1) 240ms, filter 1000ms ease-out 240ms',
                 textShadow:
-                  '0 2px 10px rgba(45, 8, 16, 0.75), 0 1px 3px rgba(0, 0, 0, 0.6)',
+                  '0 2px 10px rgba(45, 8, 16, 0.85), 0 1px 4px rgba(0, 0, 0, 0.7)',
                 willChange: 'transform, opacity, filter',
               }}
-              className={`${pinyonScript.className} text-white text-[28px] min-[390px]:text-[32px] sm:text-[34px] leading-[1.12] tracking-[0.01em] select-none`}
+              className={`${pinyonScript.className} text-white text-[30px] min-[390px]:text-[34px] sm:text-[37px] leading-[1.12] tracking-[0.01em] select-none`}
             >
               Thuý Hiền
             </div>

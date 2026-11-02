@@ -21,6 +21,7 @@ export default function WaxSealGate({
     if (onOpen) onOpen();
 
     if (typeof window !== 'undefined') {
+      (window as any).__weddingGateOpened = true;
       window.dispatchEvent(new CustomEvent('wedding-gate-opening'));
     }
 
