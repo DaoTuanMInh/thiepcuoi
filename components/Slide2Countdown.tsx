@@ -20,23 +20,40 @@ interface Slide2CountdownProps {
   side?: 'nha-trai' | 'nha-gai';
 }
 
+function getInitialTimeLeft(targetIso: string) {
+  const target = new Date(targetIso).getTime();
+  const now = new Date().getTime();
+  const distance = target - now;
+
+  if (distance <= 0) {
+    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+  }
+
+  return {
+    days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+    minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+    seconds: Math.floor((distance % (1000 * 60)) / 1000),
+  };
+}
+
 export default function Slide2Countdown({
   targetDate,
   photoUrl = '/images/slide2-wedding-meadow.jpg',
   side = 'nha-gai',
 }: Slide2CountdownProps) {
-  // Xác định ngày đếm ngược chính xác:
+  // Xác định ngày đếm ngược chính xác theo giờ Việt Nam (UTC+7):
   // Nhà Gái: 9:00 ngày 29.11.2026
   // Nhà Trai: 16:30 ngày 29.11.2026
   const finalTargetDate =
     targetDate ||
-    (side === 'nha-trai' ? '2026-11-29T16:30:00' : '2026-11-29T09:00:00');
+    (side === 'nha-trai'
+      ? '2026-11-29T16:30:00+07:00'
+      : '2026-11-29T09:00:00+07:00');
 
-  const [timeLeft, setTimeLeft] = useState({ days: 28, hours: 22, minutes: 49, seconds: 10 });
-  const [mounted, setMounted] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(() => getInitialTimeLeft(finalTargetDate));
 
   useEffect(() => {
-    setMounted(true);
     const target = new Date(finalTargetDate).getTime();
 
     const calculateTime = () => {
@@ -71,10 +88,19 @@ export default function Slide2Countdown({
         {/* Title: Ngày tình yêu đơm hoa... */}
         <div className="w-full px-4 flex flex-col items-center overflow-visible">
           <h2
-            className={`${pinyonScript.className} text-[29px] min-[390px]:text-[33px] sm:text-[40px] text-[#8F3047] leading-[1.25] py-1 mb-2.5 sm:mb-3.5 tracking-[0.01em] text-center max-w-full select-none`}
+            className={`${pinyonScript.className} text-[29px] min-[390px]:text-[33px] sm:text-[40px] text-[#8F3047] leading-[1.25] py-1 mb-1 tracking-[0.01em] text-center max-w-full select-none`}
           >
             Ngày tình yêu đơm hoa...
           </h2>
+
+          {/* Badge thông tin thời gian chuẩn theo bên Nhà Trai / Nhà Gái */}
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#A83F55]/12 border border-[#A83F55]/25 text-[#8F3047] text-[11.5px] sm:text-[12.5px] font-bold tracking-wider uppercase mb-4 shadow-xs">
+            <span>
+              {side === 'nha-trai'
+                ? '16:30 • CHỦ NHẬT, 29.11.2026'
+                : '09:00 • CHỦ NHẬT, 29.11.2026'}
+            </span>
+          </div>
 
           {/* 4 Countdown Boxes */}
           <div className="flex items-center justify-center gap-2.5 sm:gap-3.5 mb-7 sm:mb-8">
@@ -82,9 +108,10 @@ export default function Slide2Countdown({
             <div className="flex flex-col items-center">
               <div className="w-[58px] h-[58px] sm:w-[66px] sm:h-[66px] bg-[#A83F55] rounded-2xl flex items-center justify-center shadow-[0_4px_14px_rgba(168,63,85,0.25)] transition-transform hover:scale-105">
                 <span
+                  suppressHydrationWarning
                   className={`${prata.className} text-white text-[30px] sm:text-[34px] leading-none`}
                 >
-                  {mounted ? format(timeLeft.days) : '28'}
+                  {format(timeLeft.days)}
                 </span>
               </div>
               <span
@@ -98,9 +125,10 @@ export default function Slide2Countdown({
             <div className="flex flex-col items-center">
               <div className="w-[58px] h-[58px] sm:w-[66px] sm:h-[66px] bg-[#A83F55] rounded-2xl flex items-center justify-center shadow-[0_4px_14px_rgba(168,63,85,0.25)] transition-transform hover:scale-105">
                 <span
+                  suppressHydrationWarning
                   className={`${prata.className} text-white text-[30px] sm:text-[34px] leading-none`}
                 >
-                  {mounted ? format(timeLeft.hours) : '22'}
+                  {format(timeLeft.hours)}
                 </span>
               </div>
               <span
@@ -114,9 +142,10 @@ export default function Slide2Countdown({
             <div className="flex flex-col items-center">
               <div className="w-[58px] h-[58px] sm:w-[66px] sm:h-[66px] bg-[#A83F55] rounded-2xl flex items-center justify-center shadow-[0_4px_14px_rgba(168,63,85,0.25)] transition-transform hover:scale-105">
                 <span
+                  suppressHydrationWarning
                   className={`${prata.className} text-white text-[30px] sm:text-[34px] leading-none`}
                 >
-                  {mounted ? format(timeLeft.minutes) : '49'}
+                  {format(timeLeft.minutes)}
                 </span>
               </div>
               <span
@@ -130,9 +159,10 @@ export default function Slide2Countdown({
             <div className="flex flex-col items-center">
               <div className="w-[58px] h-[58px] sm:w-[66px] sm:h-[66px] bg-[#A83F55] rounded-2xl flex items-center justify-center shadow-[0_4px_14px_rgba(168,63,85,0.25)] transition-transform hover:scale-105">
                 <span
+                  suppressHydrationWarning
                   className={`${prata.className} text-white text-[30px] sm:text-[34px] leading-none`}
                 >
-                  {mounted ? format(timeLeft.seconds) : '10'}
+                  {format(timeLeft.seconds)}
                 </span>
               </div>
               <span
