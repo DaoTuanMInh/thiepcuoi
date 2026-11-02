@@ -274,7 +274,7 @@ export default function Slide5LoveStory({
             {/* Nét chữ Cô dâu chuẩn mẫu với vòng lượn chữ C bên trái */}
             <div className="relative w-[122px] sm:w-[136px] aspect-[102/40] -ml-2">
               <Image
-                src="/images/calligraphy-co-dau.png?v=2"
+                src="/images/calligraphy-co-dau.png"
                 alt="Cô dâu"
                 fill
                 unoptimized
@@ -300,7 +300,7 @@ export default function Slide5LoveStory({
             {/* Nét chữ Chú rể chuẩn mẫu với vòng lượn chữ C bên trái */}
             <div className="relative w-[122px] sm:w-[136px] aspect-[102/40] -ml-1">
               <Image
-                src="/images/calligraphy-chu-re.png?v=2"
+                src="/images/calligraphy-chu-re.png"
                 alt="Chú rể"
                 fill
                 unoptimized

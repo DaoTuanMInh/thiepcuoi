@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Thiệp Cưới Linh & Nga",
-  description: "Thiệp cưới trực tuyến - Trần Tùng Linh & Lê Hằng Nga",
+  title: "Thiệp Cưới Xuân Tùng & Thuý Hiền",
+  description: "Thiệp cưới trực tuyến - Phạm Xuân Tùng & Nguyễn Thuý Hiền",
 };
 
 export default function RootLayout({
@@ -34,6 +34,23 @@ export default function RootLayout({
             __html: `
               (function() {
                 if (typeof window === 'undefined') return;
+
+                // Force manual scroll restoration & scroll to top immediately on page load / reload
+                try {
+                  if ('scrollRestoration' in history) {
+                    history.scrollRestoration = 'manual';
+                  }
+                  window.scrollTo(0, 0);
+                  if (document.documentElement) document.documentElement.scrollTop = 0;
+                  if (document.body) document.body.scrollTop = 0;
+                } catch (e) {}
+
+                window.addEventListener('beforeunload', function() {
+                  try {
+                    window.scrollTo(0, 0);
+                  } catch (e) {}
+                });
+
                 // Suppress browser extension hydration mismatch errors (e.g. Bitdefender bis_skin_checked)
                 const origError = console.error;
                 console.error = function(...args) {
