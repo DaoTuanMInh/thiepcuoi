@@ -1,12 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { Cormorant_Infant } from 'next/font/google';
+import { Cormorant_Infant, Pinyon_Script } from 'next/font/google';
 
 const cormorantInfant = Cormorant_Infant({
   weight: ['400', '500', '600', '700'],
   style: ['normal', 'italic'],
+  subsets: ['latin', 'vietnamese'],
+});
+
+const pinyonScript = Pinyon_Script({
+  weight: '400',
   subsets: ['latin', 'vietnamese'],
 });
 
@@ -16,30 +21,116 @@ interface Slide1HeroProps {
 
 export default function Slide1Hero({ guestName }: Slide1HeroProps) {
   const [mounted, setMounted] = useState(false);
+  const [namesVisible, setNamesVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     setMounted(true);
+
+    // Trigger animation when the Song Hỷ wax seal gate opens
+    const handleGateOpening = () => {
+      setTimeout(() => {
+        setNamesVisible(true);
+      }, 500);
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('wedding-gate-opening', handleGateOpening);
+    }
+
+    // Fallback: If gate is already open or not present, animate after brief entrance
+    const fallbackTimer = setTimeout(() => {
+      setNamesVisible(true);
+    }, 900);
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('wedding-gate-opening', handleGateOpening);
+      }
+      clearTimeout(fallbackTimer);
+    };
+  }, []);
+
+  // Also re-trigger smoothly when user scrolls back into Slide 1
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setNamesVisible(true);
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   return (
-    <section className="relative w-full flex flex-col items-center justify-center bg-[#FFFAF4] pt-2 pb-0 select-none overflow-x-hidden">
+    <section
+      ref={sectionRef}
+      className="relative w-full flex flex-col items-center justify-center bg-[#FFFAF4] pt-2 pb-0 select-none overflow-x-hidden"
+    >
       {/* Slide Container: Perfectly sized and centered for mobile & desktop */}
       <div
         className={`relative w-full max-w-[450px] mx-auto transition-all duration-1000 ease-out ${
           mounted ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-3 scale-[0.99]'
         }`}
       >
-        {/* Main Artwork: Toned wedding envelope with ruffled heart and flowers */}
+        {/* Main Artwork: Toned wedding envelope with ruffled velvet heart and flowers */}
         <div className="relative w-full aspect-[682/1024] bg-[#FFFAF4] overflow-hidden">
           <Image
-            src="/images/wedding-card-toned.png"
+            src="/images/wedding-card-bg-clean.png"
             alt="Thiệp cưới Xuân Tùng & Thuý Hiền"
             fill
             priority
-            unoptimized
             sizes="(max-width: 480px) 100vw, 450px"
             className="object-contain w-full h-full"
           />
+
+          {/* Couple Names on Velvet Heart with elegant slide-up from bottom animation */}
+          <div className="absolute top-[70.2%] left-0 right-0 -translate-y-1/2 flex flex-col items-center justify-center text-center pointer-events-none z-10">
+            {/* Line 1: Chú rể Xuân Tùng */}
+            <div
+              style={{
+                opacity: namesVisible ? 1 : 0,
+                transform: namesVisible ? 'translate3d(0, 0, 0)' : 'translate3d(0, 32px, 0)',
+                filter: namesVisible ? 'blur(0px)' : 'blur(4px)',
+                transition:
+                  'opacity 1100ms cubic-bezier(0.16, 1, 0.3, 1), transform 1200ms cubic-bezier(0.16, 1, 0.3, 1), filter 1100ms ease-out',
+                transitionDelay: '120ms',
+                textShadow:
+                  '0 2px 10px rgba(45, 8, 16, 0.75), 0 1px 3px rgba(0, 0, 0, 0.6)',
+                willChange: 'transform, opacity, filter',
+              }}
+              className={`${pinyonScript.className} text-white text-[28px] min-[390px]:text-[32px] sm:text-[34px] leading-[1.12] tracking-[0.01em] select-none`}
+            >
+              Xuân Tùng
+            </div>
+
+            {/* Line 2: Cô dâu Thuý Hiền */}
+            <div
+              style={{
+                opacity: namesVisible ? 1 : 0,
+                transform: namesVisible ? 'translate3d(0, 0, 0)' : 'translate3d(0, 32px, 0)',
+                filter: namesVisible ? 'blur(0px)' : 'blur(4px)',
+                transition:
+                  'opacity 1100ms cubic-bezier(0.16, 1, 0.3, 1), transform 1200ms cubic-bezier(0.16, 1, 0.3, 1), filter 1100ms ease-out',
+                transitionDelay: '280ms',
+                textShadow:
+                  '0 2px 10px rgba(45, 8, 16, 0.75), 0 1px 3px rgba(0, 0, 0, 0.6)',
+                willChange: 'transform, opacity, filter',
+              }}
+              className={`${pinyonScript.className} text-white text-[28px] min-[390px]:text-[32px] sm:text-[34px] leading-[1.12] tracking-[0.01em] select-none`}
+            >
+              Thuý Hiền
+            </div>
+          </div>
         </div>
 
         {/* Long content written directly in HTML text with original elegant serif typography */}
