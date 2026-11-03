@@ -5,10 +5,12 @@ import { Disc, VolumeX } from 'lucide-react';
 
 interface BackgroundMusicProps {
   audioUrl?: string;
+  songTitle?: string;
 }
 
 export default function BackgroundMusic({
-  audioUrl = '/music/beautiful-in-white.mp3',
+  audioUrl = '/music/ngay-dau-tien.mp3',
+  songTitle = 'Ngày Đầu Tiên',
 }: BackgroundMusicProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
@@ -103,7 +105,7 @@ export default function BackgroundMusic({
 
   return (
     <>
-      {/* Thẻ audio phát nhạc Beautiful In White */}
+      {/* Thẻ audio phát nhạc Ngày Đầu Tiên */}
       <audio
         ref={audioRef}
         src={audioUrl}
@@ -194,7 +196,7 @@ export default function BackgroundMusic({
 
           {/* Nhãn chữ tên bài hát / trạng thái */}
           <span className="text-[11.5px] sm:text-[12.5px] font-semibold tracking-tight whitespace-nowrap">
-            {isPlaying ? 'Beautiful In White' : 'Bật nhạc'}
+            {isPlaying ? songTitle : 'Bật nhạc'}
           </span>
         </button>
       </div>

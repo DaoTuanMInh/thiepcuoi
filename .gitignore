@@ -40,3 +40,6 @@ next-env.d.ts
 
 # Raw camera master photos (used versions are compressed to 1600x2400)
 public/images/JANG*.jpg
+
+# Local raw music files with unicode characters (web version is ngay-dau-tien.mp3)
+public/music/*Tiên*.mp3
