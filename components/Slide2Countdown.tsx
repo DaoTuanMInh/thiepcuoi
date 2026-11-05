@@ -43,13 +43,13 @@ export default function Slide2Countdown({
   side = 'nha-gai',
 }: Slide2CountdownProps) {
   // Xác định ngày đếm ngược chính xác theo giờ Việt Nam (UTC+7):
-  // Nhà Gái: 9:00 ngày 29.11.2026
+  // Nhà Gái: 9:30 ngày 29.11.2026
   // Nhà Trai: 16:30 ngày 29.11.2026
   const finalTargetDate =
     targetDate ||
     (side === 'nha-trai'
       ? '2026-11-29T16:30:00+07:00'
-      : '2026-11-29T09:00:00+07:00');
+      : '2026-11-29T09:30:00+07:00');
 
   const [timeLeft, setTimeLeft] = useState(() => getInitialTimeLeft(finalTargetDate));
 

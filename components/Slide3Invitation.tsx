@@ -77,7 +77,7 @@ export const EVENT_BRIDE: EventCardInfo = {
   id: 'bride',
   tag: 'HÔN LỄ NHÀ GÁI',
   title: 'LỄ THÀNH HÔN',
-  time: 'ĐƯỢC TỔ CHỨC VÀO LÚC 9:00, CHỦ NHẬT',
+  time: 'ĐƯỢC TỔ CHỨC VÀO LÚC 9:30, CHỦ NHẬT',
   date: '29.11.2026',
   lunarDate: '(Tức ngày 21 tháng 10 năm Bính Ngọ)',
   venueName: 'TẠI NHÀ VĂN HOÁ KHU YÊN LÃNG 2',
